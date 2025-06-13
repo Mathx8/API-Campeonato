@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from Controller.decorators import editor_ou_admin
 from Model.grupo import (ListarGrupos, ListarGrupoPorId, CriarGrupo, AtualizarGrupo, DeletarGrupo, ObterClassificacaoPorGrupoId)
 
 grupo_ns = Namespace("Grupo", description="Operações relacionadas aos grupos de competições")
@@ -48,6 +49,7 @@ class GrupoResource(Resource):
     @grupo_ns.expect(grupo_model)
     @grupo_ns.response(201, "Grupo criado com sucesso", grupo_output_model)
     @grupo_ns.response(400, "Dados inválidos", erro_model)
+    @editor_ou_admin
     def post(self):
         """Cria um novo grupo"""
         dados = grupo_ns.payload
@@ -70,6 +72,7 @@ class GrupoIdResource(Resource):
     @grupo_ns.expect(grupo_model)
     @grupo_ns.response(200, "Grupo atualizado com sucesso", grupo_output_model)
     @grupo_ns.response(404, "Grupo não encontrado", erro_model)
+    @editor_ou_admin
     def put(self, id_grupo):
         """Atualiza um grupo existente"""
         dados = grupo_ns.payload
@@ -80,6 +83,7 @@ class GrupoIdResource(Resource):
 
     @grupo_ns.response(200, "Grupo excluído com sucesso")
     @grupo_ns.response(404, "Grupo não encontrado", erro_model)
+    @editor_ou_admin
     def delete(self, id_grupo):
         """Remove um grupo"""
         sucesso, erro = DeletarGrupo(id_grupo)

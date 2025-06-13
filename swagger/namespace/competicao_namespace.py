@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource, fields
+from Controller.decorators import editor_ou_admin
 from Model.competicao import ListarCompeticoes, ListarCompeticaoPorId, CriarCompeticao, AtualizarCompeticao, DeletarCompeticao
 
-competicao_ns = Namespace("Competicao", description="Operações relacionadas às competições")
+competicao_ns = Namespace("Competição", description="Operações relacionadas às competições")
 
 competicao_model = competicao_ns.model("Competicao", {
     "nome": fields.String(required=True, description="Nome da Competição", example='Campeonato Brasileiro'),
@@ -28,6 +29,7 @@ class CompeticaoResource(Resource):
     @competicao_ns.expect(competicao_model)
     @competicao_ns.response(201, "Competição criada com sucesso", model=competicao_output_model)
     @competicao_ns.response(400, "Dados inválidos", model=erro_model)
+    @editor_ou_admin
     def post(self):
         """Cria uma nova competição"""
         dados = competicao_ns.payload
@@ -50,6 +52,7 @@ class CompeticaoIdResource(Resource):
     @competicao_ns.expect(competicao_model)
     @competicao_ns.response(200, "Competição atualizada com sucesso", model=competicao_output_model)
     @competicao_ns.response(404, "Competição não encontrada", model=erro_model)
+    @editor_ou_admin
     def put(self, id_competicao):
         """Atualiza uma competição existente"""
         dados = competicao_ns.payload
@@ -60,6 +63,7 @@ class CompeticaoIdResource(Resource):
 
     @competicao_ns.response(200, "Competição excluída com sucesso")
     @competicao_ns.response(404, "Competição não encontrada", model=erro_model)
+    @editor_ou_admin
     def delete(self, id_competicao):
         """Remove uma competição"""
         sucesso, erro = DeletarCompeticao(id_competicao)

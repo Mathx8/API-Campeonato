@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from Controller.decorators import editor_ou_admin
 from Model.time import ListarTimes, ListarTimePorId, CriarTime, AtualizarTime, DeletarTime
 
 time_ns = Namespace("Time", description="Operações relacionadas aos times")
@@ -53,6 +54,7 @@ class TimeResource(Resource):
     @time_ns.expect(time_model)
     @time_ns.response(201, "Time criado com sucesso", time_model_output)
     @time_ns.response(400, "Dados inválidos", erro_model)
+    @editor_ou_admin
     def post(self):
         """Cria um novo time"""
         dados = time_ns.payload
@@ -75,6 +77,7 @@ class TimeIdResource(Resource):
     @time_ns.expect(time_model)
     @time_ns.response(200, "Time atualizado", time_model_output)
     @time_ns.response(404, "Time não encontrado", erro_model)
+    @editor_ou_admin
     def put(self, id):
         """Atualiza um time existente"""
         dados = time_ns.payload
@@ -86,6 +89,7 @@ class TimeIdResource(Resource):
 
     @time_ns.response(204, "Time deletado com sucesso")
     @time_ns.response(404, "Time não encontrado", erro_model)
+    @editor_ou_admin
     def delete(self, id):
         """Remove um time"""
         sucesso, erro = DeletarTime(id)

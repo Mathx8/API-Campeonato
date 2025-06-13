@@ -1,5 +1,7 @@
 from flask import Flask
 from config import db, Config
+from flask_jwt_extended import JWTManager
+
 from Controller.jogador import Jogador_Blueprint
 from Controller.partida import Partida_Blueprint
 from Controller.time import Time_Blueprint
@@ -12,6 +14,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+jwt = JWTManager(app)
 
 configure_swagger(app)
 app.register_blueprint(Jogador_Blueprint, url_prefix="/jogador")

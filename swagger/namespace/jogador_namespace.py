@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from Controller.decorators import editor_ou_admin
 from Model.jogador import ListarJogadores, ListarJogadorPorNome, CriarJogador, AtualizarJogador, DeletarJogador
 
 jogador_ns = Namespace("Jogador", description="Operações relacionadas aos jogadores")
@@ -30,6 +31,7 @@ class JogadorResource(Resource):
     @jogador_ns.expect(jogador_model)
     @jogador_ns.response(201, "Jogador criado com sucesso", model=jogador_output_model)
     @jogador_ns.response(400, "Dados inválidos", model=erro_model)
+    @editor_ou_admin
     def post(self):
         """Cria um novo jogador"""
         dados = jogador_ns.payload
@@ -54,6 +56,7 @@ class JogadorIdResource(Resource):
     @jogador_ns.expect(jogador_model)
     @jogador_ns.response(200, "Jogador atualizado com sucesso", model=jogador_output_model)
     @jogador_ns.response(404, "Jogador não encontrado", model=erro_model)
+    @editor_ou_admin
     def put(self, id_jogador):
         """Atualiza um jogador existente"""
         dados = jogador_ns.payload
@@ -64,6 +67,7 @@ class JogadorIdResource(Resource):
 
     @jogador_ns.response(200, "Jogador excluído com sucesso")
     @jogador_ns.response(404, "Jogador não encontrado", model=erro_model)
+    @editor_ou_admin
     def delete(self, id_jogador):
         """Remove um jogador"""
         sucesso, erro = DeletarJogador(id_jogador)

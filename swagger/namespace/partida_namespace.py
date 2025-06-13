@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from Controller.decorators import editor_ou_admin
 from Model.partida import ListarPartidas, ListarPartidasPorRodada, ListarPartidaPorId, CriarPartida, AtualizarPartida, DeletarPartida
 
 partida_ns = Namespace("Partida", description="Operações relacionadas às partidas")
@@ -64,6 +65,7 @@ class PartidaResource(Resource):
     @partida_ns.expect(partida_model)
     @partida_ns.response(201, "Partida criada com sucesso", partida_model_output)
     @partida_ns.response(400, "Dados inválidos", erro_model)
+    @editor_ou_admin
     def post(self):
         """Cria uma nova partida"""
         dados = partida_ns.payload
@@ -94,6 +96,7 @@ class PartidaIdResource(Resource):
     @partida_ns.expect(partida_model)
     @partida_ns.response(200, "Partida atualizada", partida_model_output)
     @partida_ns.response(404, "Partida não encontrada", erro_model)
+    @editor_ou_admin
     def put(self, id):
         """Atualiza uma partida existente"""
         dados = partida_ns.payload
@@ -104,6 +107,7 @@ class PartidaIdResource(Resource):
 
     @partida_ns.response(204, "Partida deletada com sucesso")
     @partida_ns.response(404, "Partida não encontrada", erro_model)
+    @editor_ou_admin
     def delete(self, id):
         """Remove uma partida"""
         sucesso, erro = DeletarPartida(id)

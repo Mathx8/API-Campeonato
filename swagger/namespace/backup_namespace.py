@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from datetime import datetime
 from Backup.backup import create_sqlite_backup
+from Controller.decorators import editor_ou_admin
 
 backup_ns = Namespace('Backup', description='Operações de backup do banco de dados')
 
@@ -20,6 +21,7 @@ class BackupResource(Resource):
     @backup_ns.doc(description='Cria um backup completo do banco em formato SQLite')
     @backup_ns.response(200, 'Backup realizado com sucesso', backup_success_model)
     @backup_ns.response(500, 'Erro durante o backup', backup_error_model)
+    @editor_ou_admin
     def post(self):
         """Backup para o banco local"""
         try:
