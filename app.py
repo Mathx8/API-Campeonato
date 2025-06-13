@@ -1,6 +1,7 @@
 from flask import Flask
 from config import db, Config
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from Controller.jogador import Jogador_Blueprint
 from Controller.partida import Partida_Blueprint
@@ -11,6 +12,7 @@ from Controller.backup import Backup_Blueprint
 from swagger.swagger_config import configure_swagger
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config.from_object(Config)
 
 db.init_app(app)
