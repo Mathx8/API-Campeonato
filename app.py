@@ -12,7 +12,7 @@ from Controller.backup import Backup_Blueprint
 from swagger.swagger_config import configure_swagger
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config)
 
 db.init_app(app)
