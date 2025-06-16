@@ -3,6 +3,11 @@ from Model.partida import *
 
 Partida_Blueprint = Blueprint("partida", __name__)
 
+@Partida_Blueprint.route("/", methods=["GET"])
+def listar_partidas():
+    partidas = ListarPartidas()
+    return jsonify([p.dici() for p in partidas])
+
 @Partida_Blueprint.route("/rodada/<int:rodada>", methods=["GET"])
 def get_partidas_por_rodada(rodada):
     rodada = ListarPartidasPorRodada(rodada)
