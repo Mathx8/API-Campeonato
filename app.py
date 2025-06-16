@@ -25,10 +25,15 @@ CORS(app,
 
 @app.before_request
 def enforce_https():
-    """Redireciona todas as requisições HTTP para HTTPS"""
+    """Redirecionamento inteligente para HTTPS"""
     if not request.is_secure:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301) 
+        if 'X-Forwarded-Proto' in request.headers:
+            if request.headers['X-Forwarded-Proto'] == 'http':
+                url = request.url.replace('http://', 'https://', 1)
+                return redirect(url, code=301)
+        else:
+            url = request.url.replace('http://', 'https://', 1)
+            return redirect(url, code=301)
     
 app.config.from_object(Config)
 
