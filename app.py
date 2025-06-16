@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, request
 from config import db, Config
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -12,16 +12,24 @@ from Controller.backup import Backup_Blueprint
 from swagger.swagger_config import configure_swagger
 
 app = Flask(__name__)
-CORS(app,
-     resources={r"/*": {"origins": [
-         "http://localhost:3000",
-         "https://localhost:3000",
-         "https://apicamp.onrender.com"
-     ]}},
-     supports_credentials=True,
-     expose_headers=["Content-Type", "Authorization"],
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+CORS(app, 
+     resources={
+         r"/*": {
+             "origins": ["http://localhost:3000", "https://localhost:3000"],
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"],
+             "supports_credentials": True,
+             "expose_headers": ["Content-Type", "Authorization"]
+         }
+     })
+
+@app.before_request
+def enforce_https():
+    """Redireciona todas as requisições HTTP para HTTPS"""
+    if not request.is_secure:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301) 
+    
 app.config.from_object(Config)
 
 db.init_app(app)
