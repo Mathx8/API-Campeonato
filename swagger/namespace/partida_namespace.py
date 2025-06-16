@@ -1,3 +1,4 @@
+from flask_cors import cross_origin
 from flask_restx import Namespace, Resource, fields
 from Controller.decorators import editor_ou_admin
 from Model.partida import ListarPartidas, ListarPartidasPorRodada, ListarPartidaPorId, CriarPartida, AtualizarPartida, DeletarPartida
@@ -57,6 +58,7 @@ erro_model = partida_ns.model("Erro", {
 @partida_ns.route('/')
 class PartidaResource(Resource):
     @partida_ns.marshal_list_with(partida_view)
+    @cross_origin()
     def get(self):
         """Lista todas as partidas"""
         partidas = ListarPartidas()
