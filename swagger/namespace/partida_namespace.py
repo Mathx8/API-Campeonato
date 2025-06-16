@@ -55,6 +55,18 @@ erro_model = partida_ns.model("Erro", {
     "erro": fields.String(example="Partida não encontrada")
 })
 
+@partida_ns.route('/view')
+class PartidaResource(Resource):
+    @partida_ns.marshal_list_with(partida_view)
+    def get(self):
+        """Lista todas as partidas"""
+        partidas = ListarPartidas()
+        
+        if not partidas:
+            return {"message": "Nenhuma partida cadastrada"}, 200
+            
+        return [p.dici() for p in partidas], 200
+
 @partida_ns.route('/')
 class PartidaResource(Resource):
     @partida_ns.marshal_list_with(partida_view)
