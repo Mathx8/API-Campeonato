@@ -13,8 +13,13 @@ from swagger.swagger_config import configure_swagger
 
 app = Flask(__name__)
 CORS(app,
-     resources={r"/*": {"origins": ["http://localhost:3000"]}},
+     resources={r"/*": {"origins": [
+         "http://localhost:3000",
+         "https://localhost:3000",
+         "https://apicamp.onrender.com"
+     ]}},
      supports_credentials=True,
+     expose_headers=["Content-Type", "Authorization"],
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 app.config.from_object(Config)
