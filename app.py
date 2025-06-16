@@ -12,40 +12,38 @@ from Controller.backup import Backup_Blueprint
 from swagger.swagger_config import configure_swagger
 
 app = Flask(__name__)
-CORS(app,
+CORS(app, 
      resources={
          r"/*": {
-             "origins": [
-                 "http://localhost:3000"
-             ],
-             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-             "allow_headers": [
-                 "Content-Type",
-                 "Authorization",
-                 "X-Requested-With",
-                 "Accept"
-             ],
+             "origins": ["http://localhost:3000"],
              "supports_credentials": True,
-             "expose_headers": [
-                 "Content-Type",
-                 "Authorization",
-                 "X-Total-Count"
-             ],
-             "max_age": 86400
+             "always_send": True
          }
      })
 
 @app.before_request
 def enforce_https():
-    """Redirecionamento seguro para HTTPS"""
-    if request.headers.get('X-Forwarded-Proto') == 'http':
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
-    if not request.is_secure and not request.headers.get('X-Forwarded-Proto'):
-        if 'localhost' not in request.host and '127.0.0.1' not in request.host:
-            url = request.url.replace('http://', 'https://', 1)
-            return redirect(url, code=301)
+    """Redirecionamento HTTPS inteligente para o Render"""
+    if request.method == "OPTIONS":
+        return
     
+    is_https = (
+        request.is_secure or 
+        request.headers.get('X-Forwarded-Proto', 'https') == 'https'
+    )
+    if not is_https and 'localhost' not in request.host:
+        https_url = request.url.replace('http://', 'https://', 1)
+        return redirect(https_url, code=301)
+    
+@app.after_request
+def add_cors_headers(response):
+    """Garante headers CORS em todas as respostas"""
+    if request.method == "OPTIONS":
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        response.headers['Access-Control-Max-Age'] = '600'
+    return response
+
 app.config.from_object(Config)
 db.init_app(app)
 jwt = JWTManager(app)
