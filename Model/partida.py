@@ -30,27 +30,19 @@ class Partida(db.Model):
         self.gols_fora = gols_fora
         self.grupo_id = grupo_id
 
-    def dici(self, include_names=True):
-        data = {
+    def dici(self):
+        return {
             "id": self.id,
+            "competicao": self.competicao.nome if self.competicao else None,
             "competicao_id": self.competicao_id,
-            "competicao_tipo": self.competicao.tipo if self.competicao else None,
-            "grupo_id": self.grupo_id,
             "rodada": self.rodada,
+            "time_casa": self.time_casa.nome if self.time_casa else None,
             "time_casa_id": self.time_casa_id,
-            "time_fora_id": self.time_fora_id,
             "gols_casa": self.gols_casa,
+            "time_fora": self.time_fora.nome if self.time_fora else None,
+            "time_fora_id": self.time_fora_id,
             "gols_fora": self.gols_fora
         }
-        
-        if include_names:
-            data.update({
-                "competicao": self.competicao.nome if self.competicao else None,
-                "time_casa": self.time_casa.nome if self.time_casa else None,
-                "time_fora": self.time_fora.nome if self.time_fora else None
-            })
-        
-        return data
 
 def ListarPartidas():
     return Partida.query.all()
