@@ -45,7 +45,7 @@ class Login(Resource):
         usuario = autenticar_usuario(dados['username'], dados['senha'])
         if not usuario:
             return {"mensagem": "Usuário ou senha inválidos"}, 401
-        token = create_access_token(identity=usuario.id, expires_delta=timedelta(hours=2))
+        token = create_access_token(identity=str(usuario.id), expires_delta=timedelta(hours=12))
         return {"access_token": token, "papel": usuario.papel}, 200
     
 @api.route("/listar")

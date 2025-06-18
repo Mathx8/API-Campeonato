@@ -8,7 +8,7 @@ def admin_required(func):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         current_user_id = get_jwt_identity()
-        user = Usuario.query.get(current_user_id)
+        user = Usuario.query.get(int(current_user_id))
         if not user or user.papel != "admin":
             return jsonify({"mensagem": "Acesso restrito a administradores"}), 403
         return func(*args, **kwargs)
@@ -19,7 +19,7 @@ def editor_ou_admin(func):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         current_user_id = get_jwt_identity()
-        user = Usuario.query.get(current_user_id)
+        user = Usuario.query.get(int(current_user_id))
         if not user or user.papel not in ["admin", "editor"]:
             return jsonify({"mensagem": "Acesso negado"}), 403
         return func(*args, **kwargs)
