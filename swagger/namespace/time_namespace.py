@@ -43,14 +43,20 @@ erro_model = time_ns.model("Erro", {
     "erro": fields.String(example="Time não encontrado")
 })
 
-@time_ns.route('/')
-class TimeResource(Resource):
+@time_ns.route('/view')
+class TimeViewResource(Resource):
     @time_ns.marshal_list_with(time_view)
     def get(self):
         """Lista todos os times"""
         times = ListarTimes()
-        return [t.dici() for t in times]
+        
+        if not times:
+            return {"message": "Nenhum time cadastrado"}, 200
+            
+        return [t.dici() for t in times], 200
 
+@time_ns.route('/')
+class TimeResource(Resource):
     @time_ns.expect(time_model)
     @time_ns.response(201, "Time criado com sucesso", time_model_output)
     @time_ns.response(400, "Dados inválidos", erro_model)

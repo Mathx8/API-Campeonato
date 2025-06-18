@@ -56,7 +56,7 @@ erro_model = partida_ns.model("Erro", {
 })
 
 @partida_ns.route('/view')
-class PartidaResource(Resource):
+class PartidaViewResource(Resource):
     @partida_ns.marshal_list_with(partida_view)
     def get(self):
         """Lista todas as partidas"""
@@ -69,16 +69,6 @@ class PartidaResource(Resource):
 
 @partida_ns.route('/')
 class PartidaResource(Resource):
-    @partida_ns.marshal_list_with(partida_view)
-    def get(self):
-        """Lista todas as partidas"""
-        partidas = ListarPartidas()
-        
-        if not partidas:
-            return {"message": "Nenhuma partida cadastrada"}, 200
-            
-        return [p.dici() for p in partidas], 200
-
     @partida_ns.expect(partida_model)
     @partida_ns.response(201, "Partida criada com sucesso", partida_model_output)
     @partida_ns.response(400, "Dados inválidos", erro_model)

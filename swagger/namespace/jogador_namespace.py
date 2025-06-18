@@ -21,13 +21,20 @@ erro_model = jogador_ns.model("Erro", {
     "mensagem": fields.String(example="Jogador não encontrado")
 })
 
-@jogador_ns.route('/')
-class JogadorResource(Resource):
+@jogador_ns.route('/view')
+class JogadorViewResource(Resource):
     @jogador_ns.marshal_list_with(jogador_output_model)
     def get(self):
         """Lista todos os jogadores"""
-        return ListarJogadores()
-    
+        jogadores = ListarJogadores()
+        
+        if not jogadores:
+            return {"message": "Nenhum jogador cadastrado"}, 200
+            
+        return [j.dici() for j in jogadores], 200
+
+@jogador_ns.route('/')
+class JogadorResource(Resource):
     @jogador_ns.expect(jogador_model)
     @jogador_ns.response(201, "Jogador criado com sucesso", model=jogador_output_model)
     @jogador_ns.response(400, "Dados inválidos", model=erro_model)

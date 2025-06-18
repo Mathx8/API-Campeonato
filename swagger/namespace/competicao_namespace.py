@@ -19,13 +19,20 @@ erro_model = competicao_ns.model("Erro", {
     "mensagem": fields.String(example="Competição não encontrada")
 })
 
-@competicao_ns.route('/')
-class CompeticaoResource(Resource):
+@competicao_ns.route('/view')
+class CompeticaoViewResource(Resource):
     @competicao_ns.marshal_list_with(competicao_output_model)
     def get(self):
         """Lista todas as competições"""
-        return ListarCompeticoes()
-    
+        competicoes = ListarCompeticoes()
+        
+        if not competicoes:
+            return {"message": "Nenhuma competição cadastrada"}, 200
+            
+        return [c.dici() for c in competicoes], 200
+
+@competicao_ns.route('/')
+class CompeticaoResource(Resource):    
     @competicao_ns.expect(competicao_model)
     @competicao_ns.response(201, "Competição criada com sucesso", model=competicao_output_model)
     @competicao_ns.response(400, "Dados inválidos", model=erro_model)

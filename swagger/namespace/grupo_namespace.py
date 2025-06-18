@@ -39,13 +39,20 @@ erro_model = grupo_ns.model("Erro", {
     "mensagem": fields.String(example="Grupo não encontrado")
 })
 
-@grupo_ns.route('/')
-class GrupoResource(Resource):
+@grupo_ns.route('/view')
+class GrupoViewResource(Resource):
     @grupo_ns.marshal_list_with(grupo_output_model)
     def get(self):
         """Lista todos os grupos"""
-        return ListarGrupos()
-    
+        grupos = ListarGrupos()
+        
+        if not grupos:
+            return {"message": "Nenhum grupo cadastrado"}, 200
+            
+        return [g.dici() for g in grupos], 200
+
+@grupo_ns.route('/')
+class GrupoResource(Resource):  
     @grupo_ns.expect(grupo_model)
     @grupo_ns.response(201, "Grupo criado com sucesso", grupo_output_model)
     @grupo_ns.response(400, "Dados inválidos", erro_model)
