@@ -9,11 +9,17 @@ jogador_model = jogador_ns.model("Jogador", {
     "posicao": fields.String(required=True, description="Posição do Jogador", example = 'ATK')
 })
 
+time_model = jogador_ns.model("Time", {
+    "id": fields.Integer(description="ID do Time", example=1),
+    "nome": fields.String(description="Nome do Time", example="São Paulo"),
+    "competicao": fields.String(description="Nome da Competição", example="Libertadores")
+})
+
 jogador_output_model = jogador_ns.model("JogadorOutput", {
     "id": fields.Integer(description="ID do Jogador",example = 1),
     "nome": fields.String(description="Nome do Jogador", example="RolaTuai"),
     "posicao": fields.String(description="Posição do Jogador", example="ATK"),
-    "times": fields.String(description="Nome do Time", example="Cruzeiro")
+    "times": fields.List(fields.Nested(time_model), description="Cruzeiro")
 })
 
 erro_model = jogador_ns.model("Erro", {
