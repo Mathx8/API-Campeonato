@@ -21,7 +21,7 @@ class Jogador(db.Model):
             "id": self.id,
             "nome" : self.nome,
             "posicao" : self.posicao,
-            "times": [t.dici() for t in self.times]
+            "times": [{"id": t.id, "nome": t.nome, "competicao": t.competicao} for t in self.times]
         }
     
 def ListarJogadores():

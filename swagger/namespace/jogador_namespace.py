@@ -6,8 +6,7 @@ jogador_ns = Namespace("Jogador", description="Operações relacionadas aos joga
 
 jogador_model = jogador_ns.model("Jogador", {
     "nome": fields.String(required=True, description="Nick do Jogador", example = 'RolaTuai'),
-    "posicao": fields.String(required=True, description="Posição do Jogador", example = 'ATK'),
-    "time_ids": fields.Integer(required=False, description="ID do time do Jogador", example= [1, 9])
+    "posicao": fields.String(required=True, description="Posição do Jogador", example = 'ATK')
 })
 
 jogador_output_model = jogador_ns.model("JogadorOutput", {

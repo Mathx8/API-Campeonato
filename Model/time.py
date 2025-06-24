@@ -10,6 +10,7 @@ class Time (db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(40), nullable=False)
+    logo = db.Column(db.String(255), nullable=True)
     competicao_id = db.Column(db.Integer, db.ForeignKey('competicao.id'), nullable=True)
     grupo_id = db.Column(db.Integer, db.ForeignKey('grupo.id'), nullable=True)
 
@@ -17,8 +18,9 @@ class Time (db.Model):
     grupo = db.relationship("Grupo", back_populates="times")
     jogadores = db.relationship("Jogador", secondary=jogador_time, back_populates="times")
 
-    def __init__(self, nome, competicao=None, grupo=None):
+    def __init__(self, nome, logo=None, competicao=None, grupo=None):
         self.nome = nome
+        self.logo = logo
         
         if competicao:
             self.competicao = competicao
@@ -47,6 +49,7 @@ class Time (db.Model):
         return {
             "id": self.id,
             "nome": self.nome,
+            "logo": self.logo,
             "competicao": competicao_info,
             "grupo": grupo_info,
             "jogadores": [j.nome for j in self.jogadores]
@@ -60,6 +63,7 @@ def ListarTimePorId(idTime):
 
 def CriarTime(dados):
     nome = dados.get("nome")
+    logo = dados.get("logo")
     if not nome:
         return None, "Nome é obrigatório"
     if Time.query.filter_by(nome=nome).first():
@@ -68,7 +72,7 @@ def CriarTime(dados):
     competicao_id = dados.get("competicao_id")
     grupo_id = dados.get("grupo_id")
 
-    novoTime = Time(nome=nome)
+    novoTime = Time(nome=nome, logo=logo)
 
     if competicao_id:
         competicao = Competicao.query.get(competicao_id)
@@ -98,6 +102,9 @@ def AtualizarTime(idTime, dados):
                 return None, "Já existe outro time com esse nome"
             time.nome = nome
 
+    if 'logo' in dados:
+        time.logo = dados['logo']
+
     if 'competicao_id' in dados:
         competicao = Competicao.query.get(dados['competicao_id'])
         if not competicao:
@@ -123,3 +130,39 @@ def DeletarTime(idTime):
     db.session.delete(time)
     db.session.commit()
     return True, None
+
+def AdicionarJogadoresAoTime(id_time, dados):
+    from Model.jogador import Jogador
+    time = Time.query.get(id_time)
+    if not time:
+        return None, "Time não encontrado"
+
+    jogador_ids = dados.get("jogador_ids", [])
+    if not jogador_ids:
+        return None, "Lista de jogadores vazia"
+
+    for jogador_id in jogador_ids:
+        jogador = Jogador.query.get(jogador_id)
+        if jogador and jogador not in time.jogadores:
+            time.jogadores.append(jogador)
+
+    db.session.commit()
+    return time, None
+
+def RemoverJogadoresDoTime(id_time, dados):
+    from Model.jogador import Jogador
+    time = Time.query.get(id_time)
+    if not time:
+        return None, "Time não encontrado"
+
+    jogador_ids = dados.get("jogador_ids", [])
+    if not jogador_ids:
+        return None, "Lista de jogadores vazia"
+
+    for jogador_id in jogador_ids:
+        jogador = Jogador.query.get(jogador_id)
+        if jogador and jogador in time.jogadores:
+            time.jogadores.remove(jogador)
+
+    db.session.commit()
+    return time, None

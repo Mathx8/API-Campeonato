@@ -35,6 +35,7 @@ class Partida(db.Model):
             "id": self.id,
             "competicao": self.competicao.nome if self.competicao else None,
             "competicao_id": self.competicao_id,
+            "grupo_id": self.grupo_id,
             "rodada": self.rodada,
             "time_casa": self.time_casa.nome if self.time_casa else None,
             "time_casa_id": self.time_casa_id,

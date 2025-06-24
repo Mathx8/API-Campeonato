@@ -24,6 +24,7 @@ partida_view = partida_ns.model("PartidaView", {
         description="ID da competição",
         example=1
     ),
+    "grupo_id": fields.Integer(example=1),
     "rodada": fields.String(required=True, example=3),
     "time_casa": fields.String(example="Flamengo"),
     "gols_casa": fields.Integer(example=2),
