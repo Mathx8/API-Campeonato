@@ -11,20 +11,6 @@ time_model = time_ns.model("Time", {
     "grupo_id": fields.Integer(required=False, description="ID do Grupo (se aplicável)", example=2)
 })
 
-time_view = time_ns.model("TimeView", {
-    "nome": fields.String(required=True, description="Nome do time", example="Cruzeiro"),
-    "competicao": fields.Nested(time_ns.model("CompeticaoInfo", {
-        "id": fields.Integer(example=1),
-        "nome": fields.String(example="Brasileirão"),
-        "tipo": fields.String(example="Liga")
-    }), allow_null=True),
-    "grupo": fields.Nested(time_ns.model("GrupoInfo", {
-        "id": fields.Integer(example=2),
-        "nome": fields.String(example="Grupo A")
-    }), allow_null=True),
-    "jogadores": fields.List(fields.Raw(example={"id": 1, "nome": "RolaTuai", "posicao": "ATK"}))
-})
-
 time_model_output = time_ns.clone("TimeOutput", time_model, {
     "id": fields.Integer(description="ID do Time", example=1),
     "nome": fields.String(description="Nome do Time", example="Cruzeiro"),
@@ -50,7 +36,7 @@ erro_model = time_ns.model("Erro", {
 
 @time_ns.route('/view')
 class TimeViewResource(Resource):
-    @time_ns.marshal_list_with(time_view)
+    @time_ns.marshal_list_with(time_model_output)
     def get(self):
         """Lista todos os times"""
         times = ListarTimes()
