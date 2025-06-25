@@ -66,6 +66,7 @@ class JogadorPorNomeResource(Resource):
 @jogador_ns.route('/<int:id_jogador>')
 class JogadorIdResource(Resource):
     @jogador_ns.expect(jogador_model)
+    @jogador_ns.marshal_with(jogador_output_model)
     @jogador_ns.response(200, "Jogador atualizado com sucesso", model=jogador_output_model)
     @jogador_ns.response(404, "Jogador não encontrado", model=erro_model)
     @editor_ou_admin
@@ -75,7 +76,7 @@ class JogadorIdResource(Resource):
         jogador, erro = AtualizarJogador(id_jogador, dados)
         if erro:
             return {"mensagem": erro}, 404
-        return jogador.dici(), 200
+        return jogador, 200
 
     @jogador_ns.response(200, "Jogador excluído com sucesso")
     @jogador_ns.response(404, "Jogador não encontrado", model=erro_model)
