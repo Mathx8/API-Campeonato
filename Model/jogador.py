@@ -17,13 +17,13 @@ class Jogador(db.Model):
         self.posicao = posicao
 
     def contar_estatisticas(self):
-        from Model.sumula import SumulaGol, SumulaCartao, Sumula, SumulaMVP
+        from Model.sumula import Gol, Cartao, Sumula
 
-        gols = SumulaGol.query.filter_by(jogador_id=self.id, tipo='normal').count()
-        assistencias = SumulaGol.query.filter(SumulaGol.assistencia_id == self.id).count()
-        gols_contra = SumulaGol.query.filter_by(jogador_id=self.id, tipo='contra').count()
-        amarelos = SumulaCartao.query.filter_by(jogador_id=self.id, tipo='amarelo').count()
-        vermelhos = SumulaCartao.query.filter_by(jogador_id=self.id, tipo='vermelho').count()
+        gols = Gol.query.filter_by(jogador_id=self.id, tipo='normal').count()
+        assistencias = Gol.query.filter(Gol.assistencia_id == self.id).count()
+        gols_contra = Gol.query.filter_by(jogador_id=self.id, tipo='contra').count()
+        amarelos = Cartao.query.filter_by(jogador_id=self.id, tipo='amarelo').count()
+        vermelhos = Cartao.query.filter_by(jogador_id=self.id, tipo='vermelho').count()
         mvps = Sumula.query.filter_by(mvp_id=self.id).count()
 
         return {
