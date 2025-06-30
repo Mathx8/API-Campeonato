@@ -7,6 +7,8 @@ class Competicao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(40), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
+
+    premiacao = db.relationship("Premiacao", back_populates="competicao", uselist=False, lazy="select")
     
     __mapper_args__ = {
         'polymorphic_on': tipo,

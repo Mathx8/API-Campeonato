@@ -16,20 +16,41 @@ class Jogador(db.Model):
         self.nome = nome
         self.posicao = posicao
 
+    def contar_estatisticas(self):
+        from Model.sumula import SumulaGol, SumulaCartao, Sumula, SumulaMVP
+
+        gols = SumulaGol.query.filter_by(jogador_id=self.id, tipo='normal').count()
+        assistencias = SumulaGol.query.filter(SumulaGol.assistencia_id == self.id).count()
+        gols_contra = SumulaGol.query.filter_by(jogador_id=self.id, tipo='contra').count()
+        amarelos = SumulaCartao.query.filter_by(jogador_id=self.id, tipo='amarelo').count()
+        vermelhos = SumulaCartao.query.filter_by(jogador_id=self.id, tipo='vermelho').count()
+        mvps = Sumula.query.filter_by(mvp_id=self.id).count()
+
+        return {
+            "gols": gols,
+            "assistencias": assistencias,
+            "gols_contra": gols_contra,
+            "cartoes_amarelos": amarelos,
+            "cartoes_vermelhos": vermelhos,
+            "mvps": mvps
+        }
+
     def dici(self):
+        estatisticas = self.contar_estatisticas()
         return {
             "id": self.id,
-            "nome" : self.nome,
-            "posicao" : self.posicao,
+            "nome": self.nome,
+            "posicao": self.posicao,
+            **estatisticas,
             "times": [{"id": t.id, "nome": t.nome, "competicao": t.competicao} for t in self.times]
         }
-    
+
 def ListarJogadores():
     return Jogador.query.all()
-    
+
 def ListarJogadorPorNome(NomeJogador):
     return Jogador.query.filter_by(nome=NomeJogador).first()
-    
+
 def CriarJogador(dados):
     nome = dados.get("nome")
     posicao = dados.get("posicao")
@@ -38,19 +59,19 @@ def CriarJogador(dados):
         return None, "Nome é obrigatório"
     if not posicao:
         return None, "Posição é obrigatória"
-    
+
     novoJogador = Jogador(nome=nome, posicao=posicao)
-    
+
     for time_id in times_ids:
         time = Time.query.get(time_id)
         if time:
             novoJogador.times.append(time)
-    
+
     db.session.add(novoJogador)
     db.session.commit()
 
     return novoJogador, None
-    
+
 def AtualizarJogador(idJogador, dados):
     jogador = Jogador.query.get(idJogador)
     if not jogador:
@@ -68,12 +89,12 @@ def AtualizarJogador(idJogador, dados):
 
     db.session.commit()
     return jogador, None
-    
+
 def DeletarJogador(idJogador):
     jogador = Jogador.query.get(idJogador)
     if not jogador:
         return False, "Jogador não encontrado"
-    
+
     db.session.delete(jogador)
     db.session.commit()
     return True, None

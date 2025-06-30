@@ -16,10 +16,16 @@ time_model = jogador_ns.model("Time", {
 })
 
 jogador_output_model = jogador_ns.model("JogadorOutput", {
-    "id": fields.Integer(description="ID do Jogador",example = 1),
+    "id": fields.Integer(description="ID do Jogador", example=1),
     "nome": fields.String(description="Nome do Jogador", example="RolaTuai"),
     "posicao": fields.String(description="Posição do Jogador", example="ATK"),
-    "times": fields.List(fields.Nested(time_model), description="Cruzeiro")
+    "gols": fields.Integer(description="Quantidade de gols marcados", example=5),
+    "assistencias": fields.Integer(description="Quantidade de assistências", example=3),
+    "gols_contra": fields.Integer(description="Gols contra", example=1),
+    "cartoes_amarelos": fields.Integer(description="Cartões amarelos recebidos", example=2),
+    "cartoes_vermelhos": fields.Integer(description="Cartões vermelhos recebidos", example=1),
+    "mvps": fields.Integer(description="Quantidade de vezes eleito MVP", example=4),
+    "times": fields.List(fields.Nested(time_model), description="Times pelos quais jogou")
 })
 
 erro_model = jogador_ns.model("Erro", {
