@@ -12,10 +12,12 @@ partida_model = partida_ns.model("Partida", {
     "time_fora_id": fields.Integer(required=True, example=2),
     "gols_casa": fields.Integer(required=False, example=2),
     "gols_fora": fields.Integer(required=False, example=1),
-    "rodada": fields.String(required=True, example=3)
+    "rodada": fields.String(required=True, example=3),
+    "link": fields.String(required=False, example="https://youtube.com/partida123")
 })
 
 partida_view = partida_ns.model("PartidaView", {
+    "id": fields.Integer(description="ID da Partida", example=1),
     "competicao": fields.String(
         description="Nome da competição (liga ou torneio)",
         example="Campeonato Brasileiro"
@@ -25,6 +27,7 @@ partida_view = partida_ns.model("PartidaView", {
         example=1
     ),
     "grupo_id": fields.Integer(example=1),
+    "link": fields.String(description="Link da partida", example="https://youtube.com/partida123"),
     "rodada": fields.String(required=True, example=3),
     "time_casa": fields.String(example="Flamengo"),
     "gols_casa": fields.Integer(example=2),
@@ -43,6 +46,7 @@ partida_model_output = partida_ns.model("PartidaOutput", {
         example=1
     ),
     "rodada": fields.String(example=1),
+    "link": fields.String(description="Link da partida", example="https://youtube.com/partida123"),
     "time_casa": fields.String(example="Flamengo"),
     "time_fora": fields.String(example="Vasco"),
     "gols_casa": fields.Integer(example=2),

@@ -11,7 +11,7 @@ time_model = time_ns.model("Time", {
     "grupo_id": fields.Integer(required=False, description="ID do Grupo (se aplicável)", example=2)
 })
 
-time_model_output = time_ns.clone("TimeOutput", time_model, {
+time_model_output = time_ns.model("TimeOutput", {
     "id": fields.Integer(description="ID do Time", example=1),
     "nome": fields.String(description="Nome do Time", example="Cruzeiro"),
     "competicao": fields.Nested(time_ns.model("CompeticaoInfo", {

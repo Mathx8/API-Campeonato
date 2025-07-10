@@ -19,6 +19,7 @@ sumula_input_model = sumula_ns.model("SumulaInput", {
     "partida_id": fields.Integer(required=True, example=1, description="ID da partida"),
     "mvp_id": fields.Integer(required=True, example=5, description="ID do jogador MVP"),
     "gols": fields.List(fields.Nested(jogador_evento_model), description="Lista de gols na partida"),
+    "cleansheets": fields.List(fields.Integer, description="IDs dos jogadores que conseguiram clean sheet"),
     "cartoes": fields.List(fields.Nested(cartao_model), description="Lista de cartões da partida")
 })
 
@@ -27,6 +28,7 @@ sumula_output_model = sumula_ns.model("SumulaOutput", {
     "partida_id": fields.Integer,
     "mvp": fields.String,
     "gols": fields.List(fields.Raw),
+    "cleansheets": fields.List(fields.Raw),
     "cartoes": fields.List(fields.Raw)
 })
 

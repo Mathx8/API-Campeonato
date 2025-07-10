@@ -14,6 +14,7 @@ class Sumula(db.Model):
 
     gols = db.relationship("Gol", backref="sumula", cascade="all, delete-orphan")
     cartoes = db.relationship("Cartao", backref="sumula", cascade="all, delete-orphan")
+    cleansheets = db.relationship("CleanSheet", backref="sumula", cascade="all, delete-orphan")
 
     def dici(self):
         return {
@@ -21,6 +22,7 @@ class Sumula(db.Model):
             "partida_id": self.partida_id,
             "mvp": self.mvp.nome if self.mvp else None,
             "gols": [g.dici() for g in self.gols],
+            "cleansheets": [cs.dici() for cs in self.cleansheets],
             "cartoes": [c.dici() for c in self.cartoes]
         }
 
@@ -49,13 +51,12 @@ class Gol(db.Model):
             "assistencia": self.assistencia.nome if self.assistencia else None
         }
 
-
 class Cartao(db.Model):
     __tablename__ = "cartao"
 
     id = db.Column(db.Integer, primary_key=True)
     jogador_id = db.Column(db.Integer, db.ForeignKey("jogador.id"), nullable=False)
-    tipo = db.Column(db.String(10), nullable=False)  # amarelo/vermelho
+    tipo = db.Column(db.String(10), nullable=False)
 
     sumula_id = db.Column(db.Integer, db.ForeignKey("sumula.id"), nullable=False)
     jogador = db.relationship("Jogador")
@@ -64,6 +65,20 @@ class Cartao(db.Model):
         return {
             "jogador": self.jogador.nome,
             "tipo": self.tipo
+        }
+
+class CleanSheet(db.Model):
+    __tablename__ = "cleansheet"
+
+    id = db.Column(db.Integer, primary_key=True)
+    jogador_id = db.Column(db.Integer, db.ForeignKey("jogador.id"), nullable=False)
+    sumula_id = db.Column(db.Integer, db.ForeignKey("sumula.id"), nullable=False)
+
+    jogador = db.relationship("Jogador")
+
+    def dici(self):
+        return {
+            "jogador": self.jogador.nome
         }
 
 def ListarSumulas():
@@ -97,6 +112,12 @@ def CriarSumula(dados):
         )
         sumula.gols.append(gol)
 
+    for id_jogador in dados.get("cleansheets", []):
+        jogador = Jogador.query.get(id_jogador)
+        if jogador:
+            cs = CleanSheet(jogador=jogador)
+            sumula.cleansheets.append(cs)
+
     for c in dados.get("cartoes", []):
         jogador = Jogador.query.get(c.get("jogador_id"))
         if not jogador:
@@ -128,6 +149,14 @@ def AtualizarSumula(sumula_id, dados):
                 contra=g.get("contra", False)
             )
             sumula.gols.append(gol)
+
+    if "cleansheets" in dados:
+        sumula.cleansheets = []
+        for id_jogador in dados["cleansheets"]:
+            jogador = Jogador.query.get(id_jogador)
+            if jogador:
+                cs = CleanSheet(jogador=jogador)
+                sumula.cleansheets.append(cs)
 
     if "cartoes" in dados:
         sumula.cartoes = []

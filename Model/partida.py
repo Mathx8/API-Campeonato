@@ -5,6 +5,7 @@ class Partida(db.Model):
     __tablename__ = "partida"
 
     id = db.Column(db.Integer, primary_key=True)
+    link = db.Column(db.String(255), nullable=True)
     grupo_id = db.Column(db.Integer, db.ForeignKey('grupo.id'), nullable=True)
     competicao_id = db.Column(db.Integer, db.ForeignKey('competicao.id'), nullable=True)
     rodada = db.Column(db.String(20), nullable=False)
@@ -21,7 +22,7 @@ class Partida(db.Model):
     torneio = db.relationship("Torneio", overlaps="competicao")
     grupo = db.relationship("Grupo", back_populates="partidas")
 
-    def __init__(self, competicao_id, rodada, time_casa_id, time_fora_id, gols_casa=None, gols_fora=None, grupo_id=None):
+    def __init__(self, competicao_id, rodada, time_casa_id, time_fora_id, gols_casa=None, gols_fora=None, grupo_id=None, link=None):
         self.competicao_id = competicao_id
         self.rodada = rodada
         self.time_casa_id = time_casa_id
@@ -29,10 +30,12 @@ class Partida(db.Model):
         self.gols_casa = gols_casa
         self.gols_fora = gols_fora
         self.grupo_id = grupo_id
+        self.link = link
 
     def dici(self):
         return {
             "id": self.id,
+            "link": self.link,
             "competicao": self.competicao.nome if self.competicao else None,
             "competicao_id": self.competicao_id,
             "grupo_id": self.grupo_id,
@@ -78,6 +81,7 @@ def CriarPartida(dados):
         return None, "Time visitante não encontrado"
 
     novaPartida = Partida(
+        link=dados.get("link"),
         competicao_id=competicao_id,
         grupo_id=grupo_id,
         rodada=dados["rodada"],
@@ -118,6 +122,9 @@ def AtualizarPartida(idPartida, dados):
 
     if "rodada" in dados:
         partida.rodada = dados["rodada"]
+
+    if "link" in dados:
+        partida.link = dados["link"]
 
     if "competicao_id" in dados:
         from Model.competicao import Competicao
