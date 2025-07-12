@@ -14,6 +14,7 @@ time_model = time_ns.model("Time", {
 time_model_output = time_ns.model("TimeOutput", {
     "id": fields.Integer(description="ID do Time", example=1),
     "nome": fields.String(description="Nome do Time", example="Cruzeiro"),
+    "logo": fields.String(description="URL da logo do time", example="https://exemplo.com/logo.png"),
     "competicao": fields.Nested(time_ns.model("CompeticaoInfo", {
         "id": fields.Integer(example=1),
         "nome": fields.String(example="Brasileirão"),
