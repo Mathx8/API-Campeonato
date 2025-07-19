@@ -3,26 +3,21 @@ from Model.jogador import Jogador
 from Model.competicao import Competicao
 from Model.time import Time
 
-top_gk = db.Table('top_gk',
-    db.Column('premiacao_id', db.Integer, db.ForeignKey('premiacao.id')),
-    db.Column('jogador_id', db.Integer, db.ForeignKey('jogador.id'))
-)
+class TopJogadorPremiacao(db.Model):
+    __tablename__ = "top_jogador_premiacao"
 
-top_zag = db.Table('top_zag',
-    db.Column('premiacao_id', db.Integer, db.ForeignKey('premiacao.id')),
-    db.Column('jogador_id', db.Integer, db.ForeignKey('jogador.id'))
-)
+    id = db.Column(db.Integer, primary_key=True)
+    premiacao_id = db.Column(db.Integer, db.ForeignKey("premiacao.id"), nullable=False)
+    jogador_id = db.Column(db.Integer, db.ForeignKey("jogador.id"), nullable=False)
+    categoria = db.Column(db.String(10), nullable=False)
+    posicao = db.Column(db.Integer, nullable=False)
 
-top_mid = db.Table('top_mid',
-    db.Column('premiacao_id', db.Integer, db.ForeignKey('premiacao.id')),
-    db.Column('jogador_id', db.Integer, db.ForeignKey('jogador.id'))
-)
+    premiacao = db.relationship("Premiacao", back_populates="tops")
+    jogador = db.relationship("Jogador")
 
-top_atk = db.Table('top_atk',
-    db.Column('premiacao_id', db.Integer, db.ForeignKey('premiacao.id')),
-    db.Column('jogador_id', db.Integer, db.ForeignKey('jogador.id'))
-)
-
+    __table_args__ = (
+        db.UniqueConstraint('premiacao_id', 'categoria', 'posicao', name='_unique_top_position'),
+    )
 
 class Premiacao(db.Model):
     __tablename__ = "premiacao"
@@ -42,17 +37,18 @@ class Premiacao(db.Model):
     revelacao = db.relationship("Jogador", foreign_keys=[revelacao_id])
     campeao = db.relationship("Time", foreign_keys=[campeao_id])
 
-    top_gk = db.relationship("Jogador", secondary=top_gk, backref="premiacoes_gk")
-    top_zag = db.relationship("Jogador", secondary=top_zag, backref="premiacoes_zag")
-    top_mid = db.relationship("Jogador", secondary=top_mid, backref="premiacoes_mid")
-    top_atk = db.relationship("Jogador", secondary=top_atk, backref="premiacoes_atk")
-
     competicao = db.relationship("Competicao", back_populates="premiacao")
+    tops = db.relationship("TopJogadorPremiacao", back_populates="premiacao", cascade="all, delete-orphan")
 
     def __init__(self, competicao):
         self.competicao = competicao
 
     def dici(self):
+        def extrair_top(categoria):
+            return sorted([
+                {"nome": t.jogador.nome, "posicao": t.posicao} for t in self.tops if t.categoria == categoria
+            ], key=lambda x: x["posicao"])
+
         return {
             "id": self.id,
             "competicao": self.competicao_id,
@@ -60,13 +56,27 @@ class Premiacao(db.Model):
             "artilheiro": self.artilheiro.nome if self.artilheiro else None,
             "luva_de_ouro": self.luva_de_ouro.nome if self.luva_de_ouro else None,
             "revelacao": self.revelacao.nome if self.revelacao else None,
-            "top_gk": [j.nome for j in self.top_gk],
-            "top_zag": [j.nome for j in self.top_zag],
-            "top_mid": [j.nome for j in self.top_mid],
-            "top_atk": [j.nome for j in self.top_atk],
+            "top_gk": extrair_top("GK"),
+            "top_zag": extrair_top("ZAG"),
+            "top_mid": extrair_top("MID"),
+            "top_atk": extrair_top("ATK"),
             "campeao": self.campeao.nome if self.campeao else None
         }
 
+def adicionar_tops(premiacao, categoria, lista):
+    for item in lista:
+        jogador = Jogador.query.get(item["jogador_id"])
+        if jogador:
+            top = TopJogadorPremiacao(
+                jogador=jogador,
+                categoria=categoria,
+                posicao=item["posicao"]
+            )
+            premiacao.tops.append(top)
+
+def atualizar_tops(premiacao, categoria, lista):
+    premiacao.tops = [t for t in premiacao.tops if t.categoria != categoria]
+    adicionar_tops(premiacao, categoria, lista)
 
 def ListarPremiacoes():
     return Premiacao.query.all()
@@ -95,16 +105,10 @@ def CriarPremiacao(dados):
     premiacao.luva_de_ouro = buscar_jogador("luva_de_ouro_id")
     premiacao.revelacao = buscar_jogador("revelacao_id")
 
-    def adicionar_lista(nome_lista, lista_ids):
-        for jogador_id in lista_ids:
-            jogador = Jogador.query.get(jogador_id)
-            if jogador:
-                getattr(premiacao, nome_lista).append(jogador)
-
-    adicionar_lista("top_gk", dados.get("top_gk_ids", []))
-    adicionar_lista("top_zag", dados.get("top_zag_ids", []))
-    adicionar_lista("top_mid", dados.get("top_mid_ids", []))
-    adicionar_lista("top_atk", dados.get("top_atk_ids", []))
+    adicionar_tops(premiacao, "GK", dados.get("top_gk", []))
+    adicionar_tops(premiacao, "ZAG", dados.get("top_zag", []))
+    adicionar_tops(premiacao, "MID", dados.get("top_mid", []))
+    adicionar_tops(premiacao, "ATK", dados.get("top_atk", []))
 
     db.session.add(premiacao)
     db.session.commit()
@@ -118,10 +122,14 @@ def AtualizarPremiacao(premiacao_id, dados):
     def buscar_jogador(campo):
         return Jogador.query.get(dados.get(campo)) if dados.get(campo) else None
 
-    premiacao.mvp = buscar_jogador("mvp_id") or premiacao.mvp
-    premiacao.artilheiro = buscar_jogador("artilheiro_id") or premiacao.artilheiro
-    premiacao.luva_de_ouro = buscar_jogador("luva_de_ouro_id") or premiacao.luva_de_ouro
-    premiacao.revelacao = buscar_jogador("revelacao_id") or premiacao.revelacao
+    if "mvp_id" in dados:
+        premiacao.mvp = buscar_jogador("mvp_id")
+    if "artilheiro_id" in dados:
+        premiacao.artilheiro = buscar_jogador("artilheiro_id")
+    if "luva_de_ouro_id" in dados:
+        premiacao.luva_de_ouro = buscar_jogador("luva_de_ouro_id")
+    if "revelacao_id" in dados:
+        premiacao.revelacao = buscar_jogador("revelacao_id")
 
     if "campeao_id" in dados:
         novo_campeao = Time.query.get(dados["campeao_id"])
@@ -129,22 +137,14 @@ def AtualizarPremiacao(premiacao_id, dados):
             return None, "Time campeão não encontrado"
         premiacao.campeao = novo_campeao
 
-    def atualizar_lista(nome_lista, lista_ids):
-        nova_lista = []
-        for jogador_id in lista_ids:
-            jogador = Jogador.query.get(jogador_id)
-            if jogador:
-                nova_lista.append(jogador)
-        setattr(premiacao, nome_lista, nova_lista)
-
-    if "top_gk_ids" in dados:
-        atualizar_lista("top_gk", dados["top_gk_ids"])
-    if "top_zag_ids" in dados:
-        atualizar_lista("top_zag", dados["top_zag_ids"])
-    if "top_mid_ids" in dados:
-        atualizar_lista("top_mid", dados["top_mid_ids"])
-    if "top_atk_ids" in dados:
-        atualizar_lista("top_atk", dados["top_atk_ids"])
+    if "top_gk" in dados:
+        atualizar_tops(premiacao, "GK", dados["top_gk"])
+    if "top_zag" in dados:
+        atualizar_tops(premiacao, "ZAG", dados["top_zag"])
+    if "top_mid" in dados:
+        atualizar_tops(premiacao, "MID", dados["top_mid"])
+    if "top_atk" in dados:
+        atualizar_tops(premiacao, "ATK", dados["top_atk"])
 
     db.session.commit()
     return premiacao, None

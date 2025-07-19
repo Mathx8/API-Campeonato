@@ -12,7 +12,7 @@ partida_model = partida_ns.model("Partida", {
     "time_fora_id": fields.Integer(required=True, example=2),
     "gols_casa": fields.Integer(required=False, example=2),
     "gols_fora": fields.Integer(required=False, example=1),
-    "rodada": fields.String(required=True, example=3),
+    "rodada": fields.String(required=True, example="C3"),
     "link": fields.String(required=False, example="https://youtube.com/partida123")
 })
 

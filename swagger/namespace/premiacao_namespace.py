@@ -1,8 +1,21 @@
 from flask_restx import Namespace, Resource, fields
 from Controller.decorators import editor_ou_admin
-from Model.premiacao import ( ListarPremiacoes, BuscarPremiacaoPorId, CriarPremiacao, AtualizarPremiacao, DeletarPremiacao)
+from Model.premiacao import (
+    ListarPremiacoes, BuscarPremiacaoPorId,
+    CriarPremiacao, AtualizarPremiacao, DeletarPremiacao
+)
 
 premiacao_ns = Namespace("Premiacao", description="Operações relacionadas à premiação dos jogadores")
+
+top_item_model = premiacao_ns.model("TopItem", {
+    "jogador_id": fields.Integer(required=True, example=1),
+    "posicao": fields.Integer(required=True, example=1, description="Posição: 1, 2 ou 3")
+})
+
+top_output_model = premiacao_ns.model("TopOutput", {
+    "nome": fields.String,
+    "posicao": fields.Integer
+})
 
 premiacao_input_model = premiacao_ns.model("PremiacaoInput", {
     "competicao_id": fields.Integer(required=True, example=1),
@@ -10,10 +23,10 @@ premiacao_input_model = premiacao_ns.model("PremiacaoInput", {
     "artilheiro_id": fields.Integer(required=False, example=11),
     "luva_de_ouro_id": fields.Integer(required=False, example=12),
     "revelacao_id": fields.Integer(required=False, example=13),
-    "top_gk_ids": fields.List(fields.Integer, description="IDs dos TOP 3 GKs"),
-    "top_zag_ids": fields.List(fields.Integer, description="IDs dos TOP 3 ZAGs"),
-    "top_mid_ids": fields.List(fields.Integer, description="IDs dos TOP 3 MIDs"),
-    "top_atk_ids": fields.List(fields.Integer, description="IDs dos TOP 3 ATKs"),
+    "top_gk": fields.List(fields.Nested(top_item_model), description="TOP 3 GKs"),
+    "top_zag": fields.List(fields.Nested(top_item_model), description="TOP 3 ZAGs"),
+    "top_mid": fields.List(fields.Nested(top_item_model), description="TOP 3 MIDs"),
+    "top_atk": fields.List(fields.Nested(top_item_model), description="TOP 3 ATKs"),
     "campeao_id": fields.Integer(required=False, description="ID do time campeão", example=5)
 })
 
@@ -24,10 +37,10 @@ premiacao_output_model = premiacao_ns.model("PremiacaoOutput", {
     "artilheiro": fields.String,
     "luva_de_ouro": fields.String,
     "revelacao": fields.String,
-    "top_gk": fields.List(fields.String),
-    "top_zag": fields.List(fields.String),
-    "top_mid": fields.List(fields.String),
-    "top_atk": fields.List(fields.String),
+    "top_gk": fields.List(fields.Nested(top_output_model)),
+    "top_zag": fields.List(fields.Nested(top_output_model)),
+    "top_mid": fields.List(fields.Nested(top_output_model)),
+    "top_atk": fields.List(fields.Nested(top_output_model)),
     "campeao": fields.String(description="Nome do time campeão")
 })
 
