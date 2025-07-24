@@ -15,9 +15,10 @@ class SelecaoRodada(db.Model):
         return {
             "id": self.id,
             "rodada": self.rodada,
+            "competicao_id": self.competicao_id,
             "competicao": Competicao.query.get(self.competicao_id).nome if self.competicao_id else None,
             "observacoes": self.observacoes,
-            "jogadores": [f"{js.jogador.nome} ({js.categoria})" for js in self.jogadores]
+            "jogadores":  [js.dici() for js in self.jogadores]
         }
 
 class JogadorSelecao(db.Model):
@@ -30,9 +31,28 @@ class JogadorSelecao(db.Model):
     jogador = db.relationship("Jogador")
 
     def dici(self):
+        time_da_competicao = next(
+            (
+                {
+                    "id": t.id,
+                    "nome": t.nome,
+                    "competicao": {
+                        "id": t.competicao.id,
+                        "nome": t.competicao.nome
+                    } if t.competicao else None
+                }
+                for t in self.jogador.times
+                if t.competicao and t.competicao.id == self.selecao.competicao_id
+            ),
+            None
+        )
+        
         return {
-            "jogador": self.jogador.nome,
-            "categoria": self.categoria
+            "id": self.jogador.id,
+            "nome": self.jogador.nome,
+            "categoria": self.categoria,
+            "nacionalidade": self.jogador.nacionalidade,
+            "time": time_da_competicao
         }
 
 

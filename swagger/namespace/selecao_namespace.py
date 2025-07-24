@@ -6,10 +6,17 @@ from Model.selecao import (
 
 selecao_ns = Namespace("Seleção da Rodada", description="Operações relacionadas à seleção da rodada")
 
+time_model = selecao_ns.model("TimeComCompeticao", {
+    "id": fields.Integer(example=1),
+    "nome": fields.String(example="São Paulo"),
+})
 
 jogador_selecao_input = selecao_ns.model("JogadorSelecaoInput", {
-    "jogador_id": fields.Integer(required=True, example=1),
-    "categoria": fields.String(required=True, example="MID", enum=["GK", "ZAG", "MID", "ATK"])
+    "id": fields.Integer(example=12),
+    "nome": fields.String(example="Lucas Silva"),
+    "categoria": fields.String(example="MID"),
+    "nacionalidade": fields.String(example="Brasileiro"),
+    "time": fields.Nested(time_model, allow_null=True)
 })
 
 selecao_input_model = selecao_ns.model("SelecaoRodadaInput", {
@@ -23,11 +30,12 @@ selecao_input_model = selecao_ns.model("SelecaoRodadaInput", {
 })
 
 selecao_output_model = selecao_ns.model("SelecaoRodadaOutput", {
-    "id": fields.Integer,
-    "rodada": fields.String,
-    "competicao": fields.String,
-    "observacoes": fields.String,
-    "jogadores": fields.List(fields.String)
+    "id": fields.Integer(example=1),
+    "rodada": fields.String(example="Rodada 3"),
+    "competicao_id": fields.Integer(example=2),
+    "competicao": fields.String(example="Brasileirão Série A"),
+    "observacoes": fields.String(example="Jogos muito disputados."),
+    "jogadores": fields.List(fields.Nested(jogador_selecao_input))
 })
 
 erro_model = selecao_ns.model("Erro", {
