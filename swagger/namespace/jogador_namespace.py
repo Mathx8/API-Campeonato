@@ -24,9 +24,11 @@ jogador_output_model = jogador_ns.model("JogadorOutput", {
     "nacionalidade": fields.String(example="Brasil"),
     "gols": fields.Integer(description="Quantidade de gols marcados", example=5),
     "assistencias": fields.Integer(description="Quantidade de assistências", example=3),
+    "cleansheets": fields.Integer(description="Quantidade de cleansheets", example=2),
     "gols_contra": fields.Integer(description="Gols contra", example=1),
     "cartoes_amarelos": fields.Integer(description="Cartões amarelos recebidos", example=2),
     "cartoes_vermelhos": fields.Integer(description="Cartões vermelhos recebidos", example=1),
+    "selecao": fields.Integer(description="Quantidade de vezes na Seleção da Rodada", example=6),
     "mvps": fields.Integer(description="Quantidade de vezes eleito MVP", example=4),
     "times": fields.List(fields.Nested(time_model), description="Times pelos quais jogou")
 })

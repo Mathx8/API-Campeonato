@@ -20,6 +20,7 @@ class Jogador(db.Model):
 
     def contar_estatisticas(self):
         from Model.sumula import Gol, Cartao, Sumula, CleanSheet
+        from Model.selecao import JogadorSelecao
 
         gols = Gol.query.filter_by(jogador_id=self.id, contra=False).count()
         assistencias = Gol.query.filter(Gol.assistencia_id == self.id).count()
@@ -27,6 +28,7 @@ class Jogador(db.Model):
         gols_contra = Gol.query.filter_by(jogador_id=self.id, contra=True).count()
         amarelos = Cartao.query.filter_by(jogador_id=self.id, tipo='amarelo').count()
         vermelhos = Cartao.query.filter_by(jogador_id=self.id, tipo='vermelho').count()
+        selecao = JogadorSelecao.query.filter_by(jogador_id=self.id).count()
         mvps = Sumula.query.filter_by(mvp_id=self.id).count()
 
         return {
@@ -36,6 +38,7 @@ class Jogador(db.Model):
             "gols_contra": gols_contra,
             "cartoes_amarelos": amarelos,
             "cartoes_vermelhos": vermelhos,
+            "selecao": selecao,
             "mvps": mvps
         }
     
