@@ -17,6 +17,11 @@ time_model = jogador_ns.model("Time", {
     "competicao": fields.String(description="Nome da Competição", example="Libertadores")
 })
 
+premiacao_model = jogador_ns.model("PremiacaoJogador", {
+    "tipo": fields.String(description="Tipo da premiação", example="MVP"),
+    "competicao": fields.String(description="Nome da competição", example="Copa Matheus")
+})
+
 jogador_output_model = jogador_ns.model("JogadorOutput", {
     "id": fields.Integer(description="ID do Jogador", example=1),
     "nome": fields.String(description="Nome do Jogador", example="RolaTuai"),
@@ -30,6 +35,7 @@ jogador_output_model = jogador_ns.model("JogadorOutput", {
     "cartoes_vermelhos": fields.Integer(description="Cartões vermelhos recebidos", example=1),
     "selecao": fields.Integer(description="Quantidade de vezes na Seleção da Rodada", example=6),
     "mvps": fields.Integer(description="Quantidade de vezes eleito MVP", example=4),
+    "premiacoes": fields.List(fields.Nested(premiacao_model), description="Premiações recebidas pelo jogador"),
     "times": fields.List(fields.Nested(time_model), description="Times pelos quais jogou")
 })
 

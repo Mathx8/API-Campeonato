@@ -21,6 +21,7 @@ class Jogador(db.Model):
     def contar_estatisticas(self):
         from Model.sumula import Gol, Cartao, Sumula, CleanSheet
         from Model.selecao import JogadorSelecao
+        from Model.premiacao import Premiacao, TopJogadorPremiacao
 
         gols = Gol.query.filter_by(jogador_id=self.id, contra=False).count()
         assistencias = Gol.query.filter(Gol.assistencia_id == self.id).count()
@@ -31,6 +32,32 @@ class Jogador(db.Model):
         selecao = JogadorSelecao.query.filter_by(jogador_id=self.id).count()
         mvps = Sumula.query.filter_by(mvp_id=self.id).count()
 
+        premiacoes = []
+
+        premiacoes_recebidas = Premiacao.query.filter(
+            (Premiacao.mvp_id == self.id) |
+            (Premiacao.artilheiro_id == self.id) |
+            (Premiacao.luva_de_ouro_id == self.id) |
+            (Premiacao.revelacao_id == self.id)
+        ).all()
+
+        for p in premiacoes_recebidas:
+            if p.mvp_id == self.id:
+                premiacoes.append({"tipo": "MVP", "competicao": p.competicao.nome})
+            if p.artilheiro_id == self.id:
+                premiacoes.append({"tipo": "Artilheiro", "competicao": p.competicao.nome})
+            if p.luva_de_ouro_id == self.id:
+                premiacoes.append({"tipo": "Luva de Ouro", "competicao": p.competicao.nome})
+            if p.revelacao_id == self.id:
+                premiacoes.append({"tipo": "Revelação", "competicao": p.competicao.nome})
+
+        tops = TopJogadorPremiacao.query.filter_by(jogador_id=self.id).all()
+        for t in tops:
+            premiacoes.append({
+                "tipo": f"Top {t.posicao} - {t.categoria}",
+                "competicao": t.premiacao.competicao.nome
+            })
+
         return {
             "gols": gols,
             "assistencias": assistencias,
@@ -39,7 +66,8 @@ class Jogador(db.Model):
             "cartoes_amarelos": amarelos,
             "cartoes_vermelhos": vermelhos,
             "selecao": selecao,
-            "mvps": mvps
+            "mvps": mvps,
+            "premiacoes": premiacoes
         }
     
     def contar_estatisticas_na_competicao(self, competicao_id):
